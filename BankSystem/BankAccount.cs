@@ -6,22 +6,29 @@ using System.Threading.Tasks;
 
 namespace BankSystem
 {
+    public delegate void SendMessageDelegate(string message);
+
     public class BankAccount
     {
+        private SendMessageDelegate reporter;
+
         public string FullName { get; set; }
         public int Sum { get; private set; } = 0;
-        public IReporter Reporter { get; private set; }
 
-        public BankAccount(IReporter reporterCallback)
+        public void RegisterReporter(SendMessageDelegate sendMessageDelegate)
         {
-            Reporter = reporterCallback;
+            reporter += sendMessageDelegate;
+        }
+
+        public void UnregisterReporter(SendMessageDelegate sendMessageDelegate)
+        {
+            reporter -=sendMessageDelegate;
         }
 
         public void AddSum(int sum)
         {
             Sum += sum;
-            if (Reporter != null) 
-            Reporter.SendMessage($"Вам начисленно {sum}");
+            reporter?.Invoke($"Вам начисленно {sum}");/*Мы можем писать или не писать Invoke это синтаксический сахар*/
         }
 
         public int WithDrawSum(int sum)
@@ -29,12 +36,10 @@ namespace BankSystem
             if (sum <= Sum)
             {
                 Sum -= sum;
-                if(Reporter!=null)
-                   Reporter.SendMessage($"У вас снято {sum}");
+                reporter?.Invoke($"У вас снято {sum}");
                 return sum;
             }
-            if (Reporter != null)
-                Reporter.SendMessage($"Недостаточно средств");
+            reporter?.Invoke($"Недостаточно средств");
             return -1;
         }
     }

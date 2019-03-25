@@ -10,10 +10,13 @@ namespace BankSystem
     {
         static void Main(string[] args)
         {
-            var account = new BankAccount(new ConsoleReporter())
+            var account = new BankAccount
             {
                 FullName="П.П.Петрович"
             };
+
+            account.RegisterReporter(new SendMessageDelegate(new ConsoleReporter().SendMessage));
+
             account.AddSum(1000);
             account.WithDrawSum(100);
         }
